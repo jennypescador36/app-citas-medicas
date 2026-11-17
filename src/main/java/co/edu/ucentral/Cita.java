@@ -1,6 +1,5 @@
 package co.edu.ucentral;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -16,13 +15,13 @@ public class Cita extends PanacheEntity {
     public Long idUsuario;
 
     @Column(nullable = false)
-    public String medico;
-
-    @Column(nullable = false)
     public String especialidad;
 
+    @Column(nullable = false)
+    public String medico;
+
     @Column(name = "fecha_hora", nullable = false)
-    public LocalDateTime fechaHora;
+    public String fechaHora;
 
     @Column(nullable = false)
     public String estado;
