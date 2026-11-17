@@ -43,3 +43,7 @@ nb-configuration.xml
 /.quarkus/cli/plugins/
 # TLS Certificates
 .certs/
+
+frontend_registro/android/gradle/wrapper/oracleJdk-27/
+frontend_registro/build/
+frontend_registro/.dart_tool/
