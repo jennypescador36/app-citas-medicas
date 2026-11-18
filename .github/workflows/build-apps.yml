@@ -40,10 +40,16 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.47.4'
           cache: true
       - run: flutter pub get
       - name: Compilar APK
-        run: flutter build apk --release --dart-define=API_URL=$API_URL
+        run: |
+          set -o pipefail
+          if ! flutter build apk --release --dart-define=API_URL=$API_URL 2>&1 | tee build.log; then
+            grep -A12 -E "What went wrong|Error:|error:" build.log | head -40 | sed 's/%/%25/g' | tr '\n' '|' | sed 's/^/::error title=Build APK::/' ; echo
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: citas-medicas-android-apk
@@ -60,6 +66,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.47.4'
           cache: true
       - run: flutter pub get
       - name: Compilar iOS sin firma
