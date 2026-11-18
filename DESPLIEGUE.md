@@ -85,6 +85,15 @@ Apple no permite instalar una app sin firma. Opciones con el `.ipa` sin firmar:
 - Con cuenta de Apple Developer (USD 99/año): firmar y distribuir por TestFlight.
 - En una Mac: `flutter run --release` con el iPhone conectado.
 
+## 2b. Versión web y Windows
+
+- **Web:** cada push a `main` publica la app en la rama `gh-pages` y queda disponible en
+  <https://jennypescador36.github.io/app-citas-medicas/>
+  (si la página no abre, en GitHub → *Settings → Pages* elija *Deploy from a branch* → `gh-pages` / `root`).
+- **Windows:** en GitHub → Actions → última ejecución → Artifacts → `citas-medicas-windows`.
+  Descomprima la carpeta completa y ejecute `frontend_registro.exe` (debe ir junto a la carpeta `data` y `flutter_windows.dll`).
+  En local: `flutter build windows --release --dart-define=API_URL=https://app-citas-backend.onrender.com`.
+
 ## 3. Compilar el APK en local (Windows)
 
 ```bash

@@ -1,4 +1,4 @@
-name: Build backend y apps moviles
+name: Build backend, apps moviles, web y Windows
 
 on:
   push:
@@ -80,3 +80,52 @@ jobs:
         with:
           name: citas-medicas-ios-ipa
           path: frontend_registro/citas-medicas-ios-unsigned.ipa
+
+  web:
+    name: Web (GitHub Pages)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: frontend_registro
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.4'
+          cache: true
+      - run: flutter pub get
+      - name: Compilar web
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/ --dart-define=API_URL=$API_URL
+      - name: Publicar en la rama gh-pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: frontend_registro/build/web
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: 'Publicar app web'
+
+  windows:
+    name: Windows (.exe)
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: frontend_registro
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.4'
+          cache: true
+      - run: flutter pub get
+      - name: Compilar Windows
+        run: flutter build windows --release --dart-define=API_URL=${{ env.API_URL }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: citas-medicas-windows
+          path: frontend_registro/build/windows/x64/runner/Release/

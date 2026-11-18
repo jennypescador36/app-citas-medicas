@@ -1,6 +1,6 @@
 {
-    "name": "frontend_registro",
-    "short_name": "frontend_registro",
+    "name": "Medical Center - Citas Médicas",
+    "short_name": "Citas Médicas",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
