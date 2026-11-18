@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'mis_citas_screen.dart';
+import '../config/api_config.dart';
 
 class CitaHu010Service {
   final http.Client _client = http.Client();
@@ -15,7 +16,7 @@ class CitaHu010Service {
   }) async {
     try {
       final response = await _client.post(
-        Uri.parse('http://10.0.2.2:8080/usuarios/registro'),
+        Uri.parse('${ApiConfig.baseUrl}/api/usuarios/registro'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'nombre': nombre,

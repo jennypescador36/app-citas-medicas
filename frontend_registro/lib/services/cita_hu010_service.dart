@@ -1,15 +1,10 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import '../config/api_config.dart';
 import 'package:http/http.dart' as http;
 import '../models/cita_model.dart';
 
 class CitaService {
-  String get _baseUrl {
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8080';
-    }
-    return 'http://localhost:8080';
-  }
+  String get _baseUrl => ApiConfig.baseUrl;
 
   Future<List<Cita>> obtenerCitasPorUsuario(int idUsuario) async {
     final url = Uri.parse('$_baseUrl/api/citas/usuario/$idUsuario');

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'screens/mis_citas_screen.dart';
+import 'config/api_config.dart';
 
 void main() {
   runApp(const MiAppSalud());
@@ -56,12 +57,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
     setState(() => _isLoading = true);
 
-    String baseUrl = 'http://localhost:8080';
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      baseUrl = 'http://10.0.2.2:8080';
-    }
-
-    final url = Uri.parse('$baseUrl/api/usuarios/registro');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/usuarios/registro');
 
     try {
       final response = await http.post(

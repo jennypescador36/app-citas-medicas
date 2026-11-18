@@ -47,3 +47,4 @@ nb-configuration.xml
 frontend_registro/android/gradle/wrapper/oracleJdk-27/
 frontend_registro/build/
 frontend_registro/.dart_tool/
+frontend_registro/android/build/
