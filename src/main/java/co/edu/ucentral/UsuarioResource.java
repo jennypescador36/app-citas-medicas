@@ -38,6 +38,43 @@ public class UsuarioResource {
         return procesarRegistro(usuario);
     }
 
+    private static final java.util.regex.Pattern EMAIL =
+            java.util.regex.Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+
+    /**
+     * HU002 - Inicio de sesion con correo y contrasena.
+     * 200: datos del usuario (sin contrasena) con su tipo/rol.
+     * 400: datos incompletos o correo invalido. 401: credenciales incorrectas. 403: cuenta inactiva.
+     */
+    @POST
+    @Path("/login")
+    public Response login(LoginRequest login) {
+        if (login == null || login.correo == null || login.correo.isBlank()
+                || login.contrasena == null || login.contrasena.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("mensaje", "Debe ingresar correo y contrasena"))
+                    .build();
+        }
+        if (!EMAIL.matcher(login.correo.trim()).matches()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("mensaje", "El correo no tiene un formato valido"))
+                    .build();
+        }
+
+        Usuario usuario = Usuario.findByCorreo(login.correo);
+        if (usuario == null || !login.contrasena.equals(usuario.contrasena)) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(Map.of("mensaje", "Correo o contrasena incorrectos"))
+                    .build();
+        }
+        if (!usuario.estaActivo()) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(Map.of("mensaje", "La cuenta se encuentra inactiva"))
+                    .build();
+        }
+        return Response.ok(usuario).build();
+    }
+
     private Response procesarRegistro(Usuario usuario) {
         try {
             if (usuario == null || usuario.correo == null || usuario.documento == null || usuario.nombre == null || usuario.contrasena == null) {
@@ -46,7 +83,19 @@ public class UsuarioResource {
                         .build();
             }
 
-            if (Usuario.find("correo", usuario.correo).firstResult() != null) {
+            usuario.correo = usuario.correo.trim().toLowerCase();
+            if (!EMAIL.matcher(usuario.correo).matches()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(Map.of("mensaje", "El correo no tiene un formato valido"))
+                        .build();
+            }
+            if (usuario.contrasena.length() < 6) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(Map.of("mensaje", "La contrasena debe tener al menos 6 caracteres"))
+                        .build();
+            }
+
+            if (Usuario.findByCorreo(usuario.correo) != null) {
                 return Response.status(Response.Status.CONFLICT)
                         .entity(Map.of("mensaje", "El correo ya se encuentra registrado"))
                         .build();
@@ -61,6 +110,7 @@ public class UsuarioResource {
             if (usuario.tipoUsuario == null || usuario.tipoUsuario.isBlank()) {
                 usuario.tipoUsuario = "PACIENTE";
             }
+            usuario.activo = Boolean.TRUE;
 
             usuario.persist();
             return Response.status(Response.Status.CREATED).entity(usuario).build();
