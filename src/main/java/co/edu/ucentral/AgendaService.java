@@ -80,13 +80,13 @@ public class AgendaService {
             return "La fecha y hora seleccionadas ya pasaron";
         }
         if (inicio.toLocalDate().isAfter(ahora().toLocalDate().plusDays(DIAS_AGENDA - 1L))) {
-            return "Solo se puede agendar dentro de los proximos " + DIAS_AGENDA + " dias";
+            return "Solo se puede agendar dentro de los próximos " + DIAS_AGENDA + " días";
         }
         if (!horariosDelDia(p, inicio.toLocalDate()).contains(inicio.toLocalTime())) {
             return "El profesional no atiende en ese horario";
         }
         if (Cita.horarioOcupado(p.id, inicio, excluirCitaId)) {
-            return "El horario seleccionado ya no esta disponible";
+            return "El horario seleccionado ya no está disponible";
         }
         return null;
     }

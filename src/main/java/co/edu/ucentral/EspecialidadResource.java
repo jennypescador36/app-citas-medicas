@@ -53,7 +53,7 @@ public class EspecialidadResource {
         Especialidad especialidad = Especialidad.findById(id);
         if (especialidad == null || Boolean.FALSE.equals(especialidad.activa)) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of("mensaje", "La especialidad no existe o no esta activa"))
+                    .entity(Map.of("mensaje", "La especialidad no existe o no está activa"))
                     .build();
         }
         List<Map<String, Object>> profesionales = Profesional.listarActivosPorEspecialidad(id).stream()
@@ -69,7 +69,7 @@ public class EspecialidadResource {
         Profesional p = Profesional.findById(id);
         if (p == null || !p.estaActivo()) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of("mensaje", "El profesional no existe o no esta activo"))
+                    .entity(Map.of("mensaje", "El profesional no existe o no está activo"))
                     .build();
         }
         return Response.ok(disponibilidadComoLista(p, null)).build();

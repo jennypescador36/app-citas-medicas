@@ -52,19 +52,19 @@ public class UsuarioResource {
         if (login == null || login.correo == null || login.correo.isBlank()
                 || login.contrasena == null || login.contrasena.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("mensaje", "Debe ingresar correo y contrasena"))
+                    .entity(Map.of("mensaje", "Debe ingresar correo y contraseña"))
                     .build();
         }
         if (!EMAIL.matcher(login.correo.trim()).matches()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of("mensaje", "El correo no tiene un formato valido"))
+                    .entity(Map.of("mensaje", "El correo no tiene un formato válido"))
                     .build();
         }
 
         Usuario usuario = Usuario.findByCorreo(login.correo);
         if (usuario == null || !login.contrasena.equals(usuario.contrasena)) {
             return Response.status(Response.Status.UNAUTHORIZED)
-                    .entity(Map.of("mensaje", "Correo o contrasena incorrectos"))
+                    .entity(Map.of("mensaje", "Correo o contraseña incorrectos"))
                     .build();
         }
         if (!usuario.estaActivo()) {
@@ -86,12 +86,12 @@ public class UsuarioResource {
             usuario.correo = usuario.correo.trim().toLowerCase();
             if (!EMAIL.matcher(usuario.correo).matches()) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity(Map.of("mensaje", "El correo no tiene un formato valido"))
+                        .entity(Map.of("mensaje", "El correo no tiene un formato válido"))
                         .build();
             }
             if (usuario.contrasena.length() < 6) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity(Map.of("mensaje", "La contrasena debe tener al menos 6 caracteres"))
+                        .entity(Map.of("mensaje", "La contraseña debe tener al menos 6 caracteres"))
                         .build();
             }
 

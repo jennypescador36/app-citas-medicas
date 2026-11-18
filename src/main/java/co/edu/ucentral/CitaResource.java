@@ -91,16 +91,16 @@ public class CitaResource {
         }
         Usuario paciente = Usuario.findById(req.idUsuario);
         if (paciente == null || !paciente.estaActivo()) {
-            return error(Response.Status.NOT_FOUND, "El paciente no existe o su cuenta no esta activa");
+            return error(Response.Status.NOT_FOUND, "El paciente no existe o su cuenta no está activa");
         }
         // Bloqueo del profesional: dos pacientes no pueden tomar el mismo horario a la vez
         Profesional profesional = Profesional.findById(req.idProfesional, LockModeType.PESSIMISTIC_WRITE);
         if (profesional == null || !profesional.estaActivo()) {
-            return error(Response.Status.NOT_FOUND, "El profesional no existe o no esta activo");
+            return error(Response.Status.NOT_FOUND, "El profesional no existe o no está activo");
         }
         LocalDateTime inicio = parsearFechaHora(req.fecha, req.hora);
         if (inicio == null) {
-            return error(Response.Status.BAD_REQUEST, "Fecha u hora con formato invalido (yyyy-MM-dd y HH:mm)");
+            return error(Response.Status.BAD_REQUEST, "Fecha u hora con formato inválido (yyyy-MM-dd y HH:mm)");
         }
         String problema = agenda.validarHorario(profesional, inicio, null);
         if (problema != null) {
@@ -147,11 +147,11 @@ public class CitaResource {
         }
         Profesional profesional = Profesional.findById(cita.idProfesional, LockModeType.PESSIMISTIC_WRITE);
         if (profesional == null || !profesional.estaActivo()) {
-            return error(Response.Status.CONFLICT, "El profesional de la cita ya no esta activo");
+            return error(Response.Status.CONFLICT, "El profesional de la cita ya no está activo");
         }
         LocalDateTime nuevoInicio = parsearFechaHora(req.fecha, req.hora);
         if (nuevoInicio == null) {
-            return error(Response.Status.BAD_REQUEST, "Fecha u hora con formato invalido (yyyy-MM-dd y HH:mm)");
+            return error(Response.Status.BAD_REQUEST, "Fecha u hora con formato inválido (yyyy-MM-dd y HH:mm)");
         }
         if (nuevoInicio.equals(cita.fechaInicio)) {
             return error(Response.Status.BAD_REQUEST, "Selecciona un horario diferente al actual");
@@ -180,11 +180,11 @@ public class CitaResource {
             return "Solo se pueden reprogramar citas en estado PROGRAMADA";
         }
         if (cita.idProfesional == null || cita.fechaInicio == null) {
-            return "Esta cita no tiene un profesional asignado y no permite reprogramacion";
+            return "Esta cita no tiene un profesional asignado y no permite reprogramación";
         }
         if (cita.fechaInicio.isBefore(agenda.ahora().plusHours(HORAS_MINIMAS_REPROGRAMAR))) {
             return "La cita solo se puede reprogramar con al menos " + HORAS_MINIMAS_REPROGRAMAR
-                    + " horas de anticipacion";
+                    + " horas de anticipación";
         }
         return null;
     }

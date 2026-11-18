@@ -30,12 +30,40 @@ Las tablas `usuario` y `citas` se crean solas (`quarkus.hibernate-orm.database.g
 
 ### Endpoints
 
-| HU | Método | Ruta |
+| HU | Método | Ruta | Descripción |
+|---|---|---|---|
+| HU001 | POST | `/api/usuarios/registro` | Registro de usuario |
+| HU001 | GET | `/api/usuarios` | Lista de usuarios (sin contraseña) |
+| HU002 | POST | `/api/usuarios/login` | Inicio de sesión `{correo, contrasena}` |
+| HU006 | GET | `/api/especialidades` | Especialidades activas |
+| HU006 | GET | `/api/especialidades/{id}/profesionales` | Profesionales y próxima disponibilidad |
+| HU006 | GET | `/api/profesionales/{id}/disponibilidad` | Fechas y horas libres (14 días) |
+| HU008 | POST | `/api/citas/agendar` | Agendar `{idUsuario, idProfesional, fecha, hora}` |
+| HU010 | GET | `/api/citas/usuario/{idUsuario}` | Citas del paciente |
+| HU012 | PUT | `/api/citas/{id}/reprogramar` | Reprogramar `{idUsuario, fecha, hora}` |
+
+Al arrancar por primera vez, el backend carga especialidades y profesionales de ejemplo
+(`DatosIniciales.java`) si la tabla `especialidad` está vacía.
+
+### Tablas en PostgreSQL
+
+| Tabla | HU | Contenido |
 |---|---|---|
-| HU001 | POST | `/api/usuarios/registro` |
-| HU001 | GET | `/api/usuarios` |
-| HU010 | GET | `/api/citas/usuario/{idUsuario}` |
-| HU010 | POST | `/api/citas` |
+| `usuario` | HU001, HU002 | Pacientes y profesionales registrados (`activo`, `tipo_usuario`) |
+| `especialidad` | HU006 | Especialidades médicas |
+| `profesional` | HU006 | Médicos, horario y días de atención |
+| `citas` | HU008, HU010, HU012 | Citas (`id_profesional`, `fecha_inicio`, `estado`) |
+
+## Ramas en GitHub
+
+| Rama | Uso |
+|---|---|
+| `master` | Versión estable entregada |
+| `develop` | Integración de las HU terminadas |
+| `HU001`, `HU002`, `HU006`, `HU008`, `HU010`, `HU012` | Desarrollo de cada historia de usuario |
+| `main` | Rama que despliega Render (igual a `master`) |
+
+Flujo: cada HU se desarrolla en su rama → merge a `develop` → `develop` se integra en `master`.
 
 ## 2. APK Android e IPA iOS (automático)
 
