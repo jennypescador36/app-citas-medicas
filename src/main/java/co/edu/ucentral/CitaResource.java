@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -120,6 +121,72 @@ public class CitaResource {
         cita.persist();
 
         return Response.status(Response.Status.CREATED).entity(detalle(cita)).build();
+    }
+
+    /** Horas minimas de anticipacion para poder reprogramar una cita. */
+    static final int HORAS_MINIMAS_REPROGRAMAR = 2;
+
+    /**
+     * HU012 - Reprogramacion de cita: cambia fecha y hora de una cita PROGRAMADA
+     * a un nuevo horario libre del mismo profesional. El horario anterior queda libre.
+     */
+    @PUT
+    @Path("/{id}/reprogramar")
+    @Transactional
+    public Response reprogramarCita(@PathParam("id") Long id, AgendarRequest req) {
+        if (req == null || req.fecha == null || req.hora == null) {
+            return error(Response.Status.BAD_REQUEST, "Debe seleccionar la nueva fecha y hora");
+        }
+        Cita cita = Cita.findById(id);
+        if (cita == null || (req.idUsuario != null && !req.idUsuario.equals(cita.idUsuario))) {
+            return error(Response.Status.NOT_FOUND, "La cita no existe");
+        }
+        String motivo = motivoNoReprogramable(cita);
+        if (motivo != null) {
+            return error(Response.Status.CONFLICT, motivo);
+        }
+        Profesional profesional = Profesional.findById(cita.idProfesional, LockModeType.PESSIMISTIC_WRITE);
+        if (profesional == null || !profesional.estaActivo()) {
+            return error(Response.Status.CONFLICT, "El profesional de la cita ya no esta activo");
+        }
+        LocalDateTime nuevoInicio = parsearFechaHora(req.fecha, req.hora);
+        if (nuevoInicio == null) {
+            return error(Response.Status.BAD_REQUEST, "Fecha u hora con formato invalido (yyyy-MM-dd y HH:mm)");
+        }
+        if (nuevoInicio.equals(cita.fechaInicio)) {
+            return error(Response.Status.BAD_REQUEST, "Selecciona un horario diferente al actual");
+        }
+        String problema = agenda.validarHorario(profesional, nuevoInicio, cita.id);
+        if (problema != null) {
+            return error(Response.Status.CONFLICT, problema);
+        }
+        if (Cita.pacienteOcupado(cita.idUsuario, nuevoInicio, cita.id)) {
+            return error(Response.Status.CONFLICT, "Ya tienes otra cita programada en ese mismo horario");
+        }
+
+        String fechaAnterior = cita.fechaHora;
+        // Al cambiar fecha_inicio el horario anterior deja de estar ocupado
+        cita.fechaInicio = nuevoInicio;
+        cita.fechaHora = nuevoInicio.format(FORMATO_SALIDA).toUpperCase(Locale.US);
+
+        Map<String, Object> respuesta = detalle(cita);
+        respuesta.put("fechaAnterior", fechaAnterior);
+        return Response.ok(respuesta).build();
+    }
+
+    /** null si la cita se puede reprogramar; si no, el motivo para mostrar al paciente. */
+    String motivoNoReprogramable(Cita cita) {
+        if (!"PROGRAMADA".equalsIgnoreCase(cita.estado)) {
+            return "Solo se pueden reprogramar citas en estado PROGRAMADA";
+        }
+        if (cita.idProfesional == null || cita.fechaInicio == null) {
+            return "Esta cita no tiene un profesional asignado y no permite reprogramacion";
+        }
+        if (cita.fechaInicio.isBefore(agenda.ahora().plusHours(HORAS_MINIMAS_REPROGRAMAR))) {
+            return "La cita solo se puede reprogramar con al menos " + HORAS_MINIMAS_REPROGRAMAR
+                    + " horas de anticipacion";
+        }
+        return null;
     }
 
     /** Cita con los datos del profesional (consultorio, registro) para mostrar en la app. */

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/cita_model.dart';
 import '../services/cita_hu010_service.dart';
+import 'reprogramar_cita_screen.dart';
 
 class MisCitasScreen extends StatefulWidget {
   final int idUsuario;
@@ -149,6 +150,34 @@ class MisCitasScreenState extends State<MisCitasScreen> with SingleTickerProvide
               _buildItemDetalle(Icons.access_time_rounded, 'Fecha y Hora Asignada', cita.fechaHora),
               _buildItemDetalle(Icons.qr_code_2_rounded, 'Código de Registro', 'COD-00${cita.id}'),
               const SizedBox(height: 24),
+              // HU012: solo las citas programadas con profesional asignado se pueden reprogramar
+              if (cita.esProgramada && cita.idProfesional != null) ...[
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF8A65),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    icon: const Icon(Icons.update_rounded),
+                    label: const Text('Reprogramar cita', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      final cambio = await Navigator.push<bool>(
+                        this.context,
+                        MaterialPageRoute(
+                          builder: (_) => ReprogramarCitaScreen(idUsuario: _idUsuarioActual, cita: cita),
+                        ),
+                      );
+                      if (cambio == true && mounted) _cargarCitas();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
               SizedBox(
                 width: double.infinity,
                 height: 50,
