@@ -6,6 +6,7 @@ import '../services/especialidad_service.dart';
 import '../utils/formato_fecha.dart';
 import '../widgets/pantalla_base.dart';
 import '../widgets/selector_horario.dart';
+import 'agendar_cita_screen.dart';
 
 /// HU006 - Profesionales de una especialidad con su informacion y disponibilidad.
 class ProfesionalesScreen extends StatefulWidget {
@@ -99,6 +100,19 @@ class _ProfesionalesScreenState extends State<ProfesionalesScreen> {
                 _TarjetaProfesional(
                   profesional: p,
                   onVerDisponibilidad: () => _verDisponibilidad(p),
+                  // HU008: solo el paciente puede agendar
+                  onAgendar: widget.usuario.esPaciente
+                      ? () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AgendarCitaScreen(
+                                usuario: widget.usuario,
+                                especialidadInicialId: widget.especialidad.id,
+                                profesionalInicialId: p.id,
+                              ),
+                            ),
+                          )
+                      : null,
                 ),
                 const SizedBox(height: 12),
               ],
@@ -113,8 +127,9 @@ class _ProfesionalesScreenState extends State<ProfesionalesScreen> {
 class _TarjetaProfesional extends StatelessWidget {
   final Profesional profesional;
   final VoidCallback onVerDisponibilidad;
+  final VoidCallback? onAgendar;
 
-  const _TarjetaProfesional({required this.profesional, required this.onVerDisponibilidad});
+  const _TarjetaProfesional({required this.profesional, required this.onVerDisponibilidad, this.onAgendar});
 
   @override
   Widget build(BuildContext context) {
@@ -184,6 +199,13 @@ class _TarjetaProfesional extends StatelessWidget {
                 icon: const Icon(Icons.event_available_outlined, size: 18),
                 label: const Text('Ver disponibilidad'),
               ),
+              if (onAgendar != null)
+                ElevatedButton.icon(
+                  onPressed: p.tieneDisponibilidad ? onAgendar : null,
+                  style: ElevatedButton.styleFrom(backgroundColor: kAzul, foregroundColor: Colors.white),
+                  icon: const Icon(Icons.edit_calendar_outlined, size: 18),
+                  label: const Text('Agendar'),
+                ),
             ],
           ),
         ],
