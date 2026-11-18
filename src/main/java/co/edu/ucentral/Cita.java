@@ -40,6 +40,12 @@ public class Cita extends PanacheEntity {
                 idProfesional, inicio, excluirCitaId == null ? -1L : excluirCitaId) > 0;
     }
 
+    /** Indica si el paciente ya tiene otra cita programada a esa misma fecha y hora. */
+    public static boolean pacienteOcupado(Long idUsuario, LocalDateTime inicio, Long excluirCitaId) {
+        return count("idUsuario = ?1 and fechaInicio = ?2 and estado = 'PROGRAMADA' and id <> ?3",
+                idUsuario, inicio, excluirCitaId == null ? -1L : excluirCitaId) > 0;
+    }
+
     public static List<Cita> programadasDelProfesional(Long idProfesional, LocalDateTime desde, LocalDateTime hasta) {
         return list("idProfesional = ?1 and estado = 'PROGRAMADA' and fechaInicio >= ?2 and fechaInicio < ?3",
                 idProfesional, desde, hasta);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/usuario_model.dart';
 import '../widgets/pantalla_base.dart';
+import 'agendar_cita_screen.dart';
 import 'especialidades_screen.dart';
 import 'login_screen.dart';
 import 'mis_citas_screen.dart';
@@ -39,6 +40,14 @@ class HomeScreen extends StatelessWidget {
       color: kAzul,
       roles: {'PACIENTE', 'SALUD', 'ADMIN'},
       destino: (u) => EspecialidadesScreen(usuario: u),
+    ),
+    _OpcionMenu(
+      titulo: 'Agendar cita',
+      descripcion: 'Elige especialidad, profesional, fecha y hora',
+      icono: Icons.edit_calendar_outlined,
+      color: kNaranja,
+      roles: {'PACIENTE'},
+      destino: (u) => AgendarCitaScreen(usuario: u),
     ),
     _OpcionMenu(
       titulo: 'Mis citas',
