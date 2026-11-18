@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/usuario_model.dart';
 import '../widgets/pantalla_base.dart';
+import 'especialidades_screen.dart';
 import 'login_screen.dart';
 import 'mis_citas_screen.dart';
 
@@ -31,6 +32,14 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.usuario});
 
   static final List<_OpcionMenu> _opciones = [
+    _OpcionMenu(
+      titulo: 'Especialidades médicas',
+      descripcion: 'Conoce las especialidades, profesionales y su disponibilidad',
+      icono: Icons.local_hospital_outlined,
+      color: kAzul,
+      roles: {'PACIENTE', 'SALUD', 'ADMIN'},
+      destino: (u) => EspecialidadesScreen(usuario: u),
+    ),
     _OpcionMenu(
       titulo: 'Mis citas',
       descripcion: 'Consulta tus citas próximas y el histórico',
