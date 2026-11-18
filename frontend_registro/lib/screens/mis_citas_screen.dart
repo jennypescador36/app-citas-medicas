@@ -450,7 +450,7 @@ class MisCitasScreenState extends State<MisCitasScreen> with SingleTickerProvide
                                       children: [
                                         Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Color(0xFF0284C7)),
                                         SizedBox(width: 6),
-                                        Text('Volver a Registro', style: TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.bold, fontSize: 14)),
+                                        Text('Volver al menú', style: TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.bold, fontSize: 14)),
                                       ],
                                     ),
                                   ),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'screens/mis_citas_screen.dart';
 import 'config/api_config.dart';
+import 'screens/login_screen.dart';
+import 'services/api_exception.dart';
 
 void main() {
   runApp(const MiAppSalud());
@@ -28,7 +28,7 @@ class MiAppSalud extends StatelessWidget {
         ),
         fontFamily: 'Roboto',
       ),
-      home: const RegistroScreen(),
+      home: const LoginScreen(),
     );
   }
 }
@@ -60,7 +60,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
     final url = Uri.parse('${ApiConfig.baseUrl}/api/usuarios/registro');
 
     try {
-      final response = await http.post(
+      final response = await http
+          .post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -70,7 +71,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
           'contrasena': _passwordController.text,
           'tipoUsuario': _tipoUsuario,
         }),
-      );
+      )
+          .timeout(timeoutApi);
 
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -83,22 +85,10 @@ class _RegistroScreenState extends State<RegistroScreen> {
       }
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        _mostrarSnackBar('Usuario registrado exitosamente en la base de datos', Colors.green);
-
-        int idDinamico = data['id'] ?? int.tryParse(_documentoController.text.trim()) ?? 1;
-        String nombreUsuario = data['nombre'] ?? _nombreController.text.trim();
-
+        // HU001 -> HU002: volver al inicio de sesion con el correo ya diligenciado
+        final correoRegistrado = (data['correo'] ?? _correoController.text.trim()).toString();
         _limpiarFormulario();
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MisCitasScreen(
-              idUsuario: idDinamico,
-              nombreUsuario: nombreUsuario,
-            ),
-          ),
-        );
+        Navigator.pop(context, correoRegistrado);
       } else {
         String errorMsg = data['mensaje'] ?? data['error'] ?? 'Error del servidor (${response.statusCode})';
         _mostrarSnackBar(errorMsg, Colors.red);
@@ -107,7 +97,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
       debugPrint('Detalle del error HTTP: $e');
       if (!mounted) return;
       setState(() => _isLoading = false);
-      _mostrarSnackBar('Error de conexión con Quarkus en el puerto 8080', Colors.red);
+      _mostrarSnackBar('No hay conexión con el servidor. Intenta de nuevo.', Colors.red);
     }
   }
 
@@ -348,24 +338,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
                           const SizedBox(height: 14),
 
                           TextButton.icon(
-                            onPressed: () {
-                              int idPrueba = int.tryParse(_documentoController.text.trim()) ?? 1;
-                              String nombrePrueba = _nombreController.text.trim().isNotEmpty
-                                  ? _nombreController.text.trim()
-                                  : 'Usuario #$idPrueba';
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MisCitasScreen(
-                                    idUsuario: idPrueba,
-                                    nombreUsuario: nombrePrueba,
-                                  ),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.calendar_month_outlined, color: Color(0xFF0284C7)),
-                            label: const Text('Ver Mis Citas', style: TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.bold)),
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.login_rounded, color: Color(0xFF0284C7)),
+                            label: const Text('¿Ya tienes cuenta? Inicia sesión', style: TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
