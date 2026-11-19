@@ -41,6 +41,14 @@ public class Profesional extends PanacheEntity {
 
     public Boolean activo = Boolean.TRUE;
 
+    /** Usuario (tipo SALUD) con el que el profesional inicia sesion en la app. */
+    @Column(name = "id_usuario", unique = true)
+    public Long idUsuario;
+
+    public static Profesional findByUsuario(Long idUsuario) {
+        return find("idUsuario", idUsuario).firstResult();
+    }
+
     /** Dias de atencion ISO separados por coma (1 = lunes ... 7 = domingo). */
     @Column(name = "dias_atencion", nullable = false)
     public String diasAtencion = "1,2,3,4,5";
