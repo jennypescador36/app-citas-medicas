@@ -17,6 +17,9 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public class UsuarioResource {
 
+    @jakarta.inject.Inject
+    MedicoService medicoService;
+
     private static final java.util.logging.Logger LOGGER =
             java.util.logging.Logger.getLogger(UsuarioResource.class.getName());
 
@@ -113,6 +116,10 @@ public class UsuarioResource {
             usuario.activo = Boolean.TRUE;
 
             usuario.persist();
+            // Un medico nuevo queda asociado a un profesional para recibir citas y ver sus pacientes
+            if (medicoService.esMedico(usuario)) {
+                medicoService.vincular(usuario);
+            }
             return Response.status(Response.Status.CREATED).entity(usuario).build();
 
         } catch (Exception e) {

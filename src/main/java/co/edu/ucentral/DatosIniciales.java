@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 /**
@@ -14,11 +15,24 @@ import jakarta.transaction.Transactional;
 @ApplicationScoped
 public class DatosIniciales {
 
+    @Inject
+    MedicoService medicoService;
+
+    @Inject
+    CitasDemo citasDemo;
+
     @Transactional
     void alIniciar(@Observes StartupEvent evento) {
-        if (Especialidad.count() > 0) {
-            return;
+        if (Especialidad.count() == 0) {
+            cargarEspecialidadesYProfesionales();
         }
+        // Cada usuario SALUD queda asociado a un profesional (idempotente)
+        medicoService.vincularTodos();
+        // Citas de ejemplo para los pacientes existentes (solo la primera vez)
+        citasDemo.cargarSiHaceFalta();
+    }
+
+    private void cargarEspecialidadesYProfesionales() {
 
         Especialidad general = especialidad("Medicina General",
                 "Consulta de primer nivel para valoración, diagnóstico y remisión.");

@@ -6,6 +6,7 @@ import 'agendar_cita_screen.dart';
 import 'especialidades_screen.dart';
 import 'login_screen.dart';
 import 'mis_citas_screen.dart';
+import 'mis_pacientes_screen.dart';
 
 /// Opcion del menu principal, visible solo para los roles indicados (HU002).
 class _OpcionMenu {
@@ -33,6 +34,14 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.usuario});
 
   static final List<_OpcionMenu> _opciones = [
+    _OpcionMenu(
+      titulo: 'Mis pacientes',
+      descripcion: 'Pacientes asignados y sus citas',
+      icono: Icons.groups_outlined,
+      color: const Color(0xFF0D9488),
+      roles: {'SALUD'},
+      destino: (u) => MisPacientesScreen(usuario: u),
+    ),
     _OpcionMenu(
       titulo: 'Especialidades médicas',
       descripcion: 'Conoce las especialidades, profesionales y su disponibilidad',
